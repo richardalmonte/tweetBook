@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Threading.Tasks;
 using Tweetbook.Contracts;
 using Tweetbook.Contracts.V1.Requests;
 using Tweetbook.Contracts.V1.Responses;
@@ -19,15 +20,15 @@ namespace Tweetbook.Controllers
 
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
-            return Ok(_postService.GetPosts());
+            return Ok(await _postService.GetPostsAsync());
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
-        public IActionResult Get([FromRoute] Guid postId)
+        public async Task<IActionResult> GetAsync([FromRoute] Guid postId)
         {
-            var post = _postService.GetPostById(postId);
+            var post = await _postService.GetPostByIdAsync(postId);
 
             if (post == null)
             {
@@ -37,7 +38,7 @@ namespace Tweetbook.Controllers
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
-        public IActionResult Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
+        public async Task<IActionResult> Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
         {
             var post = new Post
             {
@@ -45,7 +46,7 @@ namespace Tweetbook.Controllers
                 Name = request.Name
             };
 
-            var updated = _postService.UpdatePost(post);
+            var updated = await _postService.UpdatePostAsync(post);
             if (updated)
             {
                 return Ok(post);
@@ -55,17 +56,25 @@ namespace Tweetbook.Controllers
         }
 
 
-        [HttpPost(ApiRoutes.Posts.Create)]
-        public IActionResult Create([FromBody] CreatePostRequest postRequest)
+        [HttpDelete(ApiRoutes.Posts.Delete)]
+        public async Task<IActionResult> DeleteAsync([FromRoute] Guid postId)
         {
-            var post = new Post { Id = postRequest.Id };
+            var deleted = await _postService.DeletePostAsync(postId);
 
-            if (post.Id == Guid.Empty)
+            if (deleted)
             {
-                post.Id = Guid.NewGuid();
+                return NoContent();
             }
 
-            _postService.GetPosts().Add(post);
+            return NotFound();
+        }
+
+        [HttpPost(ApiRoutes.Posts.Create)]
+        public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
+        {
+            var post = new Post { Name = postRequest.Name };
+
+            await _postService.CreatePostAsync(post);
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
 
