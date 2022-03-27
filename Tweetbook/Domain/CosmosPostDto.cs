@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 
 namespace Tweetbook.Domain
 {
+    [CosmosCollection("posts")]
     public class CosmosPostDto
     {
         [CosmosPartitionKey]

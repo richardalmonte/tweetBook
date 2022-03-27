@@ -30,11 +30,6 @@ namespace Tweetbook.Services
             return response.IsSuccess;
         }
 
-        public async Task<bool> DeletePostAsync(Guid postId)
-        {
-            var response = await _cosmosStore.RemoveByIdAsync(postId.ToString(), postId.ToString());
-            return response.IsSuccess;
-        }
 
         public async Task<Post> GetPostByIdAsync(Guid postId)
         {
@@ -57,6 +52,11 @@ namespace Tweetbook.Services
             };
 
             var response = await _cosmosStore.UpdateAsync(cosmosPost);
+            return response.IsSuccess;
+        }
+        public async Task<bool> DeletePostAsync(Guid postId)
+        {
+            var response = await _cosmosStore.RemoveByIdAsync(postId.ToString(), postId.ToString());
             return response.IsSuccess;
         }
     }
