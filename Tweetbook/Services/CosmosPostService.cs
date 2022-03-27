@@ -59,5 +59,21 @@ namespace Tweetbook.Services
             var response = await _cosmosStore.RemoveByIdAsync(postId.ToString(), postId.ToString());
             return response.IsSuccess;
         }
+
+        public async Task<bool> UserOwnsPostAsync(Guid postId, string userId)
+        {
+            var post = await _cosmosStore.Query().SingleOrDefaultAsync(x => x.Id == postId.ToString());
+            if (post == null)
+            {
+                return false;
+            }
+
+            if (post.UserId != userId)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
